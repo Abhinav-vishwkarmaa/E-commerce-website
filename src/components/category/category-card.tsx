@@ -3,6 +3,7 @@
 import React from "react";
 import { Star, Heart, ShoppingCart, Eye } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface categoryCard {
   category: {
@@ -18,9 +19,11 @@ export default function CategoryCard({ category }: categoryCard) {
             <div
               className="flex flex-col items-center p-6 bg-white/10 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl transition h-full"
             >
-              <img
-                src={category.image}
-                alt={category.name}
+              <Image
+                src={category.image || "/next.svg"}
+                alt={category.name || "category"}
+                width={500}
+                height={500}
                 className="w-24 h-24 object-cover rounded-full mb-4 border-4 border-white/20"
               />
               <h3 className="text-lg font-semibold text-white text-center">

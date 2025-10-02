@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import ProductCard from '@/components/products/product-cart';
+import ProductCard from '@/components/products/product-card';
 
 interface Subcategory {
   id: number;

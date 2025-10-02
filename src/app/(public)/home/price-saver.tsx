@@ -2,17 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import CategoryCard from "@/components/category/category-card";
-// import { Link } from "lucide-react";
-import Link from "next/link";
+import ProductCard from "../../../components/products/product-card";
 
-export default function Categories() {
-  const [categories, setCategories] = useState<any[]>([]);
+export default function PriceSaver() {
+  const [priceSaver, setPriceSaver] = useState<any[]>([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:3005/api/v1/public/categories")
-      .then((res) => setCategories(res.data.categories))
+      .get("http://localhost:3005/api/v1/public/products/price-saver")
+      .then((res) => setPriceSaver(res.data.priceSaverProducts))
       .catch((err) => console.error(err));
   }, []);
 
@@ -27,21 +25,23 @@ export default function Categories() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold text-white">Categories</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-white">Price Saver</h2>
           <p className="text-white/80 mt-2">
-            Explore all available product categories
+            Get the best deals and discounts on your favorite products
           </p>
         </div>
 
-        {/* Categories Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-        {categories.map((cat)=>(
-          <div key={cat.id}>
-            <CategoryCard category={cat}/>
-          </div>
-        ))}
+        {/* Products Grid */}
+        <div className="grid gap-6 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+          {priceSaver.map((product) => (
+            <div
+              key={product.seller_product_id}
+              className="h-full"
+            >
+              <ProductCard product={product} showDiscount={true} />
+            </div>
+          ))}
         </div>
-
       </div>
     </section>
   );

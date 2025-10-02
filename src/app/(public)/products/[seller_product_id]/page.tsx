@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import { ArrowLeft, Plus, Minus, Heart, Share2, Star } from 'lucide-react';
-import ProductCard from '@/components/products/product-cart';
+import ProductCard from '@/components/products/product-card';
 
 export default function ProductDetailPage() {
   const { seller_product_id } = useParams();

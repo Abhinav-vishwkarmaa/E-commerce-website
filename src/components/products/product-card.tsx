@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { Star, Heart, ShoppingCart, Eye } from "lucide-react";
 import Link from "next/link";
 
@@ -29,13 +30,15 @@ export default function ProductCard({ product, showDiscount }: ProductCardProps)
   const discount = mrp && salePrice ? mrp - salePrice : 0;
   const rating = product.rating?.average;
   return (
-<Link href={`public/products/${product.seller_product_id}`}>
-  <div className="flex flex-col w-54 h-68 bg-white/10 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl transition overflow-hidden">
+<Link href={`/products/${product.seller_product_id}`}>
+  <div className="flex flex-col w-auto h-68 bg-white/10 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl transition overflow-hidden">
     {/* Product Image */}
     {(
       <div className="relative w-full h-40">
-        <img
-          src={product.image_url}
+        <Image
+          src={product.image_url || "./file.svg"} 
+          width = {500}
+          height={500}
           alt={product.name || "Product"}
           className="absolute inset-0 w-full h-full object-cover"
         />
