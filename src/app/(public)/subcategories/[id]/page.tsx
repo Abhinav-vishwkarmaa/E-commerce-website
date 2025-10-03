@@ -1,41 +1,27 @@
-'use client';
+"use client";
 
-import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import ProductCard from '@/components/products/product-card';
-
-interface Subcategory {
-  id: number;
-  name: string;
-}
-
-interface Product {
-  seller_product_id: number;
-  name: string;
-  slug?: string;
-  image_url?: string;
-  price?: {
-    mrp?: number;
-    sale_price?: number;
-    act_price?: number;
-  };
-}
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import ProductCard from "@/components/products/product-card";
 
 export default function SubcategoriesPage() {
   const { id } = useParams();
-  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
-  const [subcatProducts, setSubcatProducts] = useState<Product[]>([]);
+  const categoryId = Array.isArray(id) ? id[0] : id; // normalize
+
+  const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [subcatProducts, setSubcatProducts] = useState<any[]>([]);
   const [selectedSubcat, setSelectedSubcat] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch subcategories
   useEffect(() => {
-    if (!id) return;
+    if (!categoryId) return;
 
     setLoading(true);
     axios
-      .get(`http://localhost:3005/api/v1/public/categories/${id}/subcategories`)
+      .get(`http://localhost:3005/api/v1/public/categories/${categoryId}/subcategories`)
       .then((res) => {
         setSubcategories(res.data.subcategories || []);
         if (res.data.subcategories?.length > 0) {
@@ -44,74 +30,79 @@ export default function SubcategoriesPage() {
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [categoryId]);
 
   // Fetch products for selected subcategory
   useEffect(() => {
     if (!selectedSubcat) return;
+  
+    const fetchProducts = async () => {
+      const pin = localStorage.getItem("pincode") || ""; // get latest pincode
+      try {
+        setLoading(true);
+        setError(null);
+  
+        const res = await axios.get(
+          `http://localhost:3005/api/v1/public/subcategories/${selectedSubcat}/products`,
+          { headers: { "x-user-pincode": pin } }
+        );
+  
+        if (res.data.success && Array.isArray(res.data.products)) {
+          setSubcatProducts(res.data.products);
+        } else {
+          setSubcatProducts([]);
+        }
+      } catch (err: any) {
+        console.error("Error fetching products:", err);
+        setError(err.message || "Failed to load products");
+        setSubcatProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchProducts();
+  }, [selectedSubcat]); // Only depends on selectedSubcat
+  
 
-    axios
-      .get(`http://localhost:3005/api/v1/public/subcategories/${selectedSubcat}/products`)
-      .then((res) => setSubcatProducts(res.data.products || []))
-      .catch((err) => console.error(err));
-  }, [selectedSubcat]);
-
-  if (loading)
-    return <div className="text-white text-center py-20">Loading...</div>;
+  if (loading) return <div className="text-white text-center py-20">Loading...</div>;
 
   return (
-    <>
-      <style jsx global>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
+    <div className="flex min-h-screen bg-gradient-to-br from-green-600 via-emerald-600 to-lime-500 text-white">
+      {/* Subcategory Sidebar */}
+      <aside className="w-1/4 p-6 bg-white/10 backdrop-blur-md overflow-y-auto hide-scrollbar">
+        <h2 className="text-xl font-bold mb-4">Subcategories</h2>
+        <ul className="space-y-2">
+          {subcategories.map((subcat) => (
+            <li
+              key={subcat.id}
+              className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ${
+                selectedSubcat === subcat.id
+                  ? "bg-white/20 font-semibold shadow-md"
+                  : "hover:bg-white/10"
+              }`}
+              onClick={() => setSelectedSubcat(subcat.id)}
+            >
+              {subcat.name}
+            </li>
+          ))}
+        </ul>
+      </aside>
 
-      <div className="flex min-h-screen bg-gradient-to-br from-green-600 via-emerald-600 to-lime-500 text-white">
-        {/* Subcategory Sidebar */}
-        <aside className="w-1/4 p-6 bg-white/10 backdrop-blur-md overflow-y-auto hide-scrollbar">
-          <h2 className="text-xl font-bold mb-4">Subcategories</h2>
-          <ul className="space-y-2">
-            {subcategories.map((subcat) => (
-              <li
-                key={subcat.id}
-                className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ${
-                  selectedSubcat === subcat.id 
-                    ? 'bg-white/20 font-semibold shadow-md' 
-                    : 'hover:bg-white/10'
-                }`}
-                onClick={() => setSelectedSubcat(subcat.id)}
-              >
-                {subcat.name}
-              </li>
-            ))}
-          </ul>
-        </aside>
-
-        {/* Products Grid */}
-        <main className="w-3/4 p-6 overflow-y-auto hide-scrollbar">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {subcatProducts.length > 0 ? (
-              subcatProducts.map((product) => (
-                <ProductCard
-                  key={product.seller_product_id}
-                  product={product}
-                  showDiscount
-                />
-              ))
-            ) : (
-                <div className="col-span-full text-center text-white/70 mt-10">
-                <h2 className="text-xl font-semibold">No products found</h2>
-              </div>
-            )}
-          </div>
-        </main>
-      </div>
-    </>
+      {/* Products Grid */}
+      <main className="w-3/4 p-6 overflow-y-auto hide-scrollbar">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {subcatProducts.length > 0 ? (
+            subcatProducts.map((product) => (
+              <ProductCard key={product.seller_product_id} product={product} showDiscount />
+            ))
+          ) : (
+            <div className="col-span-full text-center text-white/70 mt-10">
+              <h2 className="text-xl font-semibold">No products found</h2>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }

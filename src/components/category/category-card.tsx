@@ -13,9 +13,8 @@ interface categoryCard {
 }}
 
 export default function CategoryCard({ category }: categoryCard) {
-  console.log(category)
   return (
-<Link href={`public/subcategories/${category.id}`}>
+<Link href={`/subcategories/${category.id}`}>
             <div
               className="flex flex-col items-center p-6 bg-white/10 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl transition h-full"
             >
