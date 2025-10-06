@@ -1,8 +1,10 @@
 "use client"
 import { use, useState } from "react"
+import { useRouter } from "next/navigation"
 const apiUrl = 'http://localhost:3005/api/v1'
 
 export default function Page() {
+    const router = useRouter()
     const [otp,Setotp] = useState("")
     const [mobile,setMobile] = useState("")
     const [otpbtn,Setotpbtn] = useState(false)
@@ -30,10 +32,13 @@ export default function Page() {
         })
         const data = await response.json()
         console.log(data)
+        if(data.success===true){
+            router.push("/")
+        }
     }
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-yellow-500 to-pink-500">
             <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-sm">
                 <h4 className="text-center text-2xl font-semibold text-gray-800 mb-6">Login</h4>
                 <form className="flex flex-col space-y-4">
