@@ -18,20 +18,35 @@ export default function SubcategoriesPage() {
   // Fetch subcategories
   useEffect(() => {
     if (!categoryId) return;
-
-    setLoading(true);
-    axios
-      .get(`http://localhost:3005/api/v1/public/categories/${categoryId}/subcategories`)
-      .then((res) => {
-        setSubcategories(res.data.subcategories || []);
-        if (res.data.subcategories?.length > 0) {
-          setSelectedSubcat(res.data.subcategories[0].id);
+  
+    const fetchSubcategories = async () => {
+      setLoading(true);
+      try {
+        const pin = localStorage.getItem("pincode") || "";
+  
+        const res = await axios.get(
+          `http://localhost:3005/api/v1/public/categories/${categoryId}/subcategories`,
+          {
+            headers: { "x-user-pincode": pin }
+          }
+        );
+  
+        const subcats = res.data.subcategories || [];
+        setSubcategories(subcats);
+        if (subcats.length > 0) {
+          setSelectedSubcat(subcats[0].id);
         }
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
+      } catch (err) {
+        console.error("Error fetching subcategories:", err);
+        setSubcategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchSubcategories();
   }, [categoryId]);
-
+  
   // Fetch products for selected subcategory
   useEffect(() => {
     if (!selectedSubcat) return;
@@ -63,12 +78,10 @@ export default function SubcategoriesPage() {
   
     fetchProducts();
   }, [selectedSubcat]); // Only depends on selectedSubcat
-  
-
   if (loading) return <div className="text-white text-center py-20">Loading...</div>;
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-green-600 via-emerald-600 to-lime-500 text-white">
+    <div className="flex bg-gradient-to-br from-yellow-500 to-pink-500 text-white">
       {/* Subcategory Sidebar */}
       <aside className="w-1/4 p-6 bg-white/10 backdrop-blur-md overflow-y-auto hide-scrollbar">
         <h2 className="text-xl font-bold mb-4">Subcategories</h2>

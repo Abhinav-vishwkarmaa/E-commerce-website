@@ -46,7 +46,6 @@ export default function PriceSaver() {
 
     return () => window.removeEventListener("pincodeChanged", handlePincodeChange);
   }, []);
-  console.log(priceSaver)
   return (
     <section className="py-16 relative overflow-hidden text-white">
       {/* Background Blur Circles */}

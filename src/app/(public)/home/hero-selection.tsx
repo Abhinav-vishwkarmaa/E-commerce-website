@@ -49,7 +49,7 @@ export default function HeroSection() {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="md:hidden bg-green-700 px-4 py-4 space-y-2 rounded-xl">
+          <div className="md:hidden bg-blue-700 px-4 py-4 space-y-2 rounded-xl">
             <Link href="/" className="block hover:text-green-200">Home</Link>
             <Link href="/products" className="block hover:text-green-200">Products</Link>
             <Link href="/about" className="block hover:text-green-200">About</Link>

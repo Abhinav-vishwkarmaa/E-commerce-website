@@ -29,6 +29,6 @@ html {
 }
 /* globals.css */
 body {
-  background-color: #22c55e; /* your green gradient or fallback */
+  background-color: rgb(226, 226, 236); /* your green gradient or fallback */
   color: white;
 }

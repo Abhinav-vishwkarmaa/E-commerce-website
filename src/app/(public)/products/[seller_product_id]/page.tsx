@@ -59,7 +59,7 @@ export default function ProductDetailPage() {
         }
       `}</style>
 
-      <section className="min-h-screen bg-gradient-to-br from-green-600 via-emerald-600 to-lime-500 text-white relative overflow-hidden py-16">
+      <section className="min-h-screen bg-gradient-to-br from-yellow-500 to-pink-500 text-white relative overflow-hidden">
         {/* Background blur circles */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>

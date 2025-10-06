@@ -11,6 +11,7 @@ interface ProductCardProps {
     name?: string;
     slug?: string;
     image_url?: string;
+    image?:string;
     price?: {
       mrp?: number;
       sale_price?: number;
@@ -29,6 +30,7 @@ export default function ProductCard({ product, showDiscount }: ProductCardProps)
   const salePrice = product.price?.sale_price || 0;
   const discount = mrp && salePrice ? mrp - salePrice : 0;
   const rating = product.rating?.average;
+  console.log(product)
   return (
     <Link href={`/products/${product.seller_product_id}`}>
       <div className="flex flex-col w-auto h-68 bg-white/10 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl transition overflow-hidden">
@@ -36,7 +38,7 @@ export default function ProductCard({ product, showDiscount }: ProductCardProps)
         {(
           <div className="relative w-full h-40">
             <Image
-              src={product.image_url || "./file.svg"}
+              src={product.image_url || product.images ||"./file.svg"}
               width={500}
               height={500}
               alt={product.name || "Product"}

@@ -5,16 +5,29 @@ import axios from "axios";
 import CategoryCard from "@/components/category/category-card";
 // import { Link } from "lucide-react";
 import Link from "next/link";
+import { headers } from "next/headers";
 
 export default function Categories() {
   const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3005/api/v1/public/categories")
-      .then((res) => setCategories(res.data.categories))
-      .catch((err) => console.error(err));
+    const fetchCategories = async (pin: string) => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3005/api/v1/public/categories",
+          { headers: { "x-user-pincode": pin || "" } }
+        );
+        setCategories(res.data.categories || []);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        setCategories([]);
+      }
+    };
+  
+    const initialPin = localStorage.getItem("pincode") || "";
+    fetchCategories(initialPin);
   }, []);
+  
 
   return (
     <section className="py-16 relative overflow-hidden text-white">
