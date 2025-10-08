@@ -7,6 +7,16 @@ import { Heart, ShoppingCart, User, LogIn, Microscope, Search } from 'lucide-rea
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Replace with real auth logic
   const [pincode, setPincode] = useState("");
+  
+  // check token
+  useEffect(()=>{
+    const token = localStorage.getItem("ilb-token")
+    if(token){
+      setIsLoggedIn(true)
+    }else{
+      setIsLoggedIn(false)
+    }
+  })
 
   // Load pincode from localStorage initially
   useEffect(() => {

@@ -9,12 +9,14 @@ import { headers } from "next/headers";
 
 export default function Categories() {
   const [categories, setCategories] = useState<any[]>([]);
-
+const apiUrl =
+  (process.env.NEXT_PUBLIC_BASE_URL ?? "") +
+  (process.env.NEXT_PUBLIC_API_VERSION ?? "");
   useEffect(() => {
     const fetchCategories = async (pin: string) => {
       try {
         const res = await axios.get(
-          "http://localhost:3005/api/v1/public/categories",
+          `${apiUrl}/public/categories`,
           { headers: { "x-user-pincode": pin || "" } }
         );
         setCategories(res.data.categories || []);

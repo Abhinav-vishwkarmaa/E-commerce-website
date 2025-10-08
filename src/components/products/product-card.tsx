@@ -20,6 +20,7 @@ interface ProductCardProps {
     rating?: {
       average?: string;
     };
+    images?: string;
   };
   showDiscount?: boolean;
 }
@@ -30,7 +31,6 @@ export default function ProductCard({ product, showDiscount }: ProductCardProps)
   const salePrice = product.price?.sale_price || 0;
   const discount = mrp && salePrice ? mrp - salePrice : 0;
   const rating = product.rating?.average;
-  console.log(product)
   return (
     <Link href={`/products/${product.seller_product_id}`}>
       <div className="flex flex-col w-auto h-68 bg-white/10 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl transition overflow-hidden">
