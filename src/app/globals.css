@@ -2,9 +2,11 @@
 
 :root {
   /* Core palette - single source of truth for colors used across the app */
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #0f62fe; /* primary brand color - change here to affect whole site */
+  --background: #FFFFFF; /* Main Background */
+  --foreground: #2D3748; /* Main Text (dark charcoal) */
+  --primary: #02A684; /* Primary Green */
+  --accent: #F5A623; /* Accent Saffron */
+  --button-text: #FFFFFF; /* Button text color */
   --muted: #f4f4f6;
   --border: #e6e6ea;
   --grid-stroke: #cccccc;
@@ -18,7 +20,9 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-    --primary: #4f8cff;
+    --primary: #4fd6a3; /* darker/lighter variant for dark mode */
+    --accent: #f6b84b;
+    --button-text: #000000;
     --muted: #0f0f10;
     --border: #171717;
     --grid-stroke: #333333;
@@ -48,5 +52,14 @@ svg [fill="#666"], svg [fill="#666666"] { fill: var(--svg-fill); }
 /* small helper classes so components can use var(--primary) when needed */
 .bg-primary { background-color: var(--primary); }
 .text-primary { color: var(--primary); }
+
+/* Button helpers */
+.btn-primary { background-color: var(--primary); color: var(--button-text); }
+.btn-accent { background-color: var(--accent); color: var(--button-text); }
+.text-accent { color: var(--accent); }
+
+/* Heading helpers (use primary or foreground) */
+.heading-primary { color: var(--primary); }
+.heading-default { color: var(--foreground); }
 
 /* End of color variables and SVG/chart fallbacks */

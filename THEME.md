@@ -1,21 +1,23 @@
 Theme / Design Tokens
 
-Core colors are centralized in `src/app/globals.css` as CSS custom properties.
+The project centralizes colors in `src/app/globals.css`. Update tokens there to change global colors.
 
-Primary variables:
-- --background: page background
-- --foreground: main text color
-- --primary: brand primary color (use `.bg-primary` / `.text-primary` or `var(--primary)`) 
-- --muted: muted surfaces
-- --border: borders
-- --grid-stroke: chart/grid lines
-- --svg-fill: fallback for inline SVGs
+Brand Colors (applied in `:root`):
+- Primary Green: `--primary: #02A684` — Use for logo, headers, navigation, important icons.
+- Accent Saffron: `--accent: #F5A623` — Use for Add to Cart, special offers, highlights.
 
-Usage:
-- Prefer `var(--primary)` in component styles for brand color.
-- For SVG icons, set `fill="currentColor"` and control color with `.text-primary` or `style={{ color: 'var(--primary)' }}`.
-- To change the primary brand color, edit `--primary` in `src/app/globals.css`. Dark mode variants are in the same file under the media query `prefers-color-scheme: dark`.
+Text Colors:
+- Main Text: `--foreground: #2D3748` (dark charcoal for readability)
+- Headings: use `--primary` or `--foreground` (classes `.heading-primary` / `.heading-default`)
+- Button Text: `--button-text: #FFFFFF` (white for button labels)
 
-Notes:
-- Recharts and some third-party components receive fallback styles in `globals.css` so charts match the site theme.
-- If you use a design system or theme provider, make sure to sync those tokens with these variables.
+Background:
+- Main Background: `--background: #FFFFFF` (clean white). You can use a very light gray like `#F8F9FA` if you prefer.
+
+Helpers provided:
+- `.bg-primary`, `.text-primary`, `.btn-primary`, `.btn-accent`, `.text-accent`, `.heading-primary`, `.heading-default`
+
+SVGs in `public/` are converted to `fill="currentColor"` so they inherit `color`/`.text-*` classes.
+
+To change the brand colors, edit `src/app/globals.css` and update the `:root` variables. Dark-mode variants live under the `prefers-color-scheme: dark` block.
+
