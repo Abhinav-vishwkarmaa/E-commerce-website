@@ -3,9 +3,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CategoryCard from "@/components/category/category-card";
-// import { Link } from "lucide-react";
-import Link from "next/link";
-import { headers } from "next/headers";
 
 export default function Categories() {
   const [categories, setCategories] = useState<any[]>([]);
