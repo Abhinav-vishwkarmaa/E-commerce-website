@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
+  /* Core palette - single source of truth for colors used across the app */
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #0f62fe; /* primary brand color - change here to affect whole site */
+  --muted: #f4f4f6;
+  --border: #e6e6ea;
+  --grid-stroke: #cccccc;
+  --svg-fill: #666666;
 }
 
 @theme inline {
@@ -16,6 +22,11 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary: #4f8cff;
+    --muted: #0f0f10;
+    --border: #171717;
+    --grid-stroke: #333333;
+    --svg-fill: #999999;
   }
 }
 
@@ -27,8 +38,19 @@ body {
 html {
   scroll-behavior: smooth;
 }
-/* globals.css */
-body {
-  background-color: rgb(226, 226, 236); /* your green gradient or fallback */
-  color: white;
-}
+/* Make sure SVGs and third-party chart elements pick up our variables instead of hard-coded colors */
+.recharts-dot { stroke: var(--foreground); }
+.recharts-sector { stroke: var(--foreground); }
+.recharts-cartesian-grid_line,
+.recharts-polar-grid__line,
+.recharts-reference-line { stroke: var(--grid-stroke); }
+.recharts-tooltip-cursor { stroke: var(--border); fill: var(--muted); }
+
+/* Default fills for simple inline SVGs in public/ if they don't set a color */
+svg [fill="#666"], svg [fill="#666666"] { fill: var(--svg-fill); }
+
+/* small helper classes so components can use var(--primary) when needed */
+.bg-primary { background-color: var(--primary); }
+.text-primary { color: var(--primary); }
+
+/* End of color variables and SVG/chart fallbacks */
