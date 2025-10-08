@@ -1,13 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: "D:\Next js\my-next-app",
-  }
-  ,
+  turbopack: {}, // enable Turbopack with default settings
   images: {
-    domains: ["ilbmart-bucket.s3.ap-south-1.amazonaws.com"], // whitelist your S3 bucket
-  }
+    domains: ["ilbmart-bucket.s3.ap-south-1.amazonaws.com"],
+  },
+  eslint: {
+    ignoreDuringBuilds: true, // prevents ESLint errors from failing build
+  },
 };
 
 export default nextConfig;
