@@ -19,7 +19,7 @@ type OrderType = {
   payment_type: string;
   created_at: string;
   delivery_address: string;
-  image: string;
+  image?: string;
   address: Address;
 };
 
@@ -156,14 +156,20 @@ export default function Order({ order }: OrderProps) {
             {/* Product Image */}
             <div className="flex-shrink-0">
               <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-lg ring-4 ring-white/30 transform transition-transform duration-300 group-hover:scale-110">
-                <img 
-                  src={order.image} 
-                  alt={order.order_id}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect fill="%23ddd" width="128" height="128"/></svg>';
-                  }}
-                />
+                {order.image ? (
+                  <img
+                    src={order.image}
+                    alt={order.order_id}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect fill="%23ddd" width="128" height="128"/></svg>';
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-white/20 to-white/10 flex items-center justify-center">
+                    <Package size={48} className="text-white/70" />
+                  </div>
+                )}
               </div>
             </div>
 
