@@ -11,12 +11,8 @@
   --svg-fill: #666666;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* Theme helper variables (kept directly in :root). If you relied on a build
+   tool that injected these, reintroduce or configure that tool. */
 
 @media (prefers-color-scheme: dark) {
   :root {
