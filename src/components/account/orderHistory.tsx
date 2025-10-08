@@ -156,7 +156,7 @@ export default function OrderHistory({ order }: OrderHistoryProps) {
         }
       `}</style>
 
-      <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-4 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp overflow-hidden relative group">
+  <div className="bg-card backdrop-blur-lg rounded-2xl p-6 mb-4 border border-border shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp overflow-hidden relative group">
         {/* Shimmer effect on hover */}
         <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         
@@ -164,8 +164,8 @@ export default function OrderHistory({ order }: OrderHistoryProps) {
           {/* Header Section with Image */}
           <div className="flex flex-col md:flex-row gap-6 mb-6">
             {/* Product Image */}
-            <div className="flex-shrink-0">
-              <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-lg ring-4 ring-white/30 transform transition-transform duration-300 group-hover:scale-110">
+        <div className="flex-shrink-0">
+          <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-lg ring-4 ring-card-20 transform transition-transform duration-300 group-hover:scale-110">
                 {order.image ? (
                   <img 
                     src={order.image} 
@@ -176,8 +176,8 @@ export default function OrderHistory({ order }: OrderHistoryProps) {
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-white/20 to-white/10 flex items-center justify-center">
-                    <ShoppingBag size={48} className="text-white/70" />
+                  <div className="w-full h-full bg-card-20 flex items-center justify-center">
+                    <ShoppingBag size={48} className="text-foreground/70" />
                   </div>
                 )}
               </div>
@@ -188,10 +188,10 @@ export default function OrderHistory({ order }: OrderHistoryProps) {
               <div>
                 <div className="flex flex-wrap items-center gap-3 mb-3">
                   <div className="flex items-center gap-2">
-                    <Package size={18} className="text-white/70" />
-                    <span className="text-white/70 text-sm font-medium">Order ID:</span>
+                    <Package size={18} className="text-foreground/70" />
+                    <span className="text-foreground/70 text-sm font-medium">Order ID:</span>
                   </div>
-                  <span className="text-white font-bold text-lg tracking-wide">{order.order_id}</span>
+                  <span className="text-foreground font-bold text-lg tracking-wide">{order.order_id}</span>
                 </div>
 
                 {/* Status Badges */}
@@ -199,7 +199,7 @@ export default function OrderHistory({ order }: OrderHistoryProps) {
                   {/* Order Status */}
                   <div className={`bg-gradient-to-r ${getStatusColor(order.order_status)} px-4 py-2 rounded-full shadow-lg flex items-center gap-2 transform transition-all duration-300 hover:scale-105`}>
                     {getStatusIcon(order.order_status)}
-                    <span className="font-bold text-white text-xs uppercase tracking-wider">
+                    <span className="font-bold text-button-text text-xs uppercase tracking-wider">
                       {order.order_status}
                     </span>
                   </div>
@@ -207,8 +207,8 @@ export default function OrderHistory({ order }: OrderHistoryProps) {
                   {/* Payment Status */}
                   {order.payment_status && (
                     <div className={`${getPaymentStatusColor(order.payment_status)} px-4 py-2 rounded-full shadow-lg flex items-center gap-2 transform transition-all duration-300 hover:scale-105`}>
-                      <CreditCard size={16} className="text-white" />
-                      <span className="font-bold text-white text-xs uppercase tracking-wider">
+                      <CreditCard size={16} className="text-button-text" />
+                      <span className="font-bold text-button-text text-xs uppercase tracking-wider">
                         {order.payment_status}
                       </span>
                     </div>
@@ -218,11 +218,11 @@ export default function OrderHistory({ order }: OrderHistoryProps) {
 
               {/* Quick Info Pills */}
               <div className="flex flex-wrap gap-2">
-                <div className="bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-xs font-semibold flex items-center gap-1.5">
+                <div className="bg-card-20 backdrop-blur-sm px-3 py-1.5 rounded-full text-foreground text-xs font-semibold flex items-center gap-1.5">
                   <CreditCard size={14} />
                   {order.payment_type}
                 </div>
-                <div className="bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-xs font-semibold flex items-center gap-1.5">
+                <div className="bg-card-20 backdrop-blur-sm px-3 py-1.5 rounded-full text-foreground text-xs font-semibold flex items-center gap-1.5">
                   <Calendar size={14} />
                   {formatDate(order.created_at)}
                 </div>
@@ -233,27 +233,27 @@ export default function OrderHistory({ order }: OrderHistoryProps) {
           {/* Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {/* Total Amount */}
-            <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm transform transition-all duration-300 hover:bg-white/15 hover:scale-105 animate-fadeIn">
+            <div className="bg-card rounded-xl p-4 backdrop-blur-sm transform transition-all duration-300 hover:bg-card-20 hover:scale-105 animate-fadeIn">
               <div className="flex items-center gap-3">
                 <div className="bg-gradient-to-br from-green-400 to-green-600 p-3 rounded-lg shadow-lg">
-                  <CreditCard size={22} className="text-white" />
+                  <CreditCard size={22} className="text-button-text" />
                 </div>
                 <div>
-                  <p className="text-white/70 text-xs font-medium mb-1">Total Amount</p>
-                  <p className="text-white font-bold text-2xl">₹{parseFloat(order.total_amount).toFixed(2)}</p>
+                  <p className="text-foreground/70 text-xs font-medium mb-1">Total Amount</p>
+                  <p className="text-foreground font-bold text-2xl">₹{parseFloat(order.total_amount).toFixed(2)}</p>
                 </div>
               </div>
             </div>
 
             {/* Delivery Address */}
-            <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm transform transition-all duration-300 hover:bg-white/15 hover:scale-105 animate-fadeIn">
+            <div className="bg-card rounded-xl p-4 backdrop-blur-sm transform transition-all duration-300 hover:bg-card-20 hover:scale-105 animate-fadeIn">
               <div className="flex items-start gap-3">
                 <div className="bg-gradient-to-br from-orange-400 to-red-500 p-3 rounded-lg shadow-lg flex-shrink-0">
-                  <MapPin size={22} className="text-white" />
+                  <MapPin size={22} className="text-button-text" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white/70 text-xs font-medium mb-1">Delivery Address</p>
-                  <p className="text-white font-semibold text-sm leading-relaxed">
+                  <p className="text-foreground/70 text-xs font-medium mb-1">Delivery Address</p>
+                  <p className="text-foreground font-semibold text-sm leading-relaxed">
                     {formatAddress()}
                   </p>
                 </div>
@@ -263,7 +263,7 @@ export default function OrderHistory({ order }: OrderHistoryProps) {
 
           {/* Reorder Button - Only for delivered orders */}
           {(order.order_status.toUpperCase() === 'DELIVERED' || order.order_status.toUpperCase() === 'COMPLETED') && (
-            <button className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+            <button className="w-full btn-accent font-bold py-3.5 px-6 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
               <Package size={20} />
               <span>Reorder</span>
             </button>
@@ -271,7 +271,7 @@ export default function OrderHistory({ order }: OrderHistoryProps) {
 
           {/* View Details Button - For other statuses */}
           {order.order_status.toUpperCase() !== 'DELIVERED' && order.order_status.toUpperCase() !== 'COMPLETED' && (
-            <button className="w-full bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+            <button className="w-full bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-button-text font-bold py-3.5 px-6 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
               <AlertCircle size={20} />
               <span>View Details</span>
             </button>

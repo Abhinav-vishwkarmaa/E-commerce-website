@@ -37,16 +37,16 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white/10 backdrop-blur-md flex justify-between items-center px-6 py-4 z-50">
+    <nav className="fixed top-0 left-0 w-full bg-background/10 backdrop-blur-md flex justify-between items-center px-6 py-4 z-50">
       {/* Left: Logo */}
-      <div className="text-white font-bold text-xl">mummabite</div>
+      <div className="text-button-text font-bold text-xl">mummabite</div>
 
       {/* Center: Navigation */}
       <div className="flex space-x-6">
-        <a href="#hero" className="text-white font-semibold hover:text-green-200">Home</a>
-        <a href="#trending" className="text-white font-semibold hover:text-green-200">Trending</a>
-        <a href="#categories" className="text-white font-semibold hover:text-green-200">Categories</a>
-        <a href="#pricesaver" className="text-white font-semibold hover:text-green-200">Price Saver</a>
+        <a href="#hero" className="text-button-text font-semibold hover:text-primary">Home</a>
+        <a href="#trending" className="text-button-text font-semibold hover:text-primary">Trending</a>
+        <a href="#categories" className="text-button-text font-semibold hover:text-primary">Categories</a>
+        <a href="#pricesaver" className="text-button-text font-semibold hover:text-primary">Price Saver</a>
       </div>
 
       {/* Right: Pincode Input + Wishlist/Cart/Profile */}
@@ -60,24 +60,24 @@ export default function Navbar() {
         />
         <Search
           size={24}
-          className="cursor-pointer text-black hover:text-blue-600 hover:bg-gray-200 p-1 rounded transition-colors duration-200"
+          className="cursor-pointer text-foreground hover:text-primary hover:bg-muted p-1 rounded transition-colors duration-200"
           onClick={setLocal}
         />
 
 
         <Link href="/wishlist">
-          <Heart className="w-6 h-6 text-red-400 hover:text-red-600" />
+          <Heart className="w-6 h-6 text-accent hover:text-accent/80" />
         </Link>
         <Link href="/cart">
-          <ShoppingCart className="w-6 h-6 text-green-400 hover:text-green-600" />
+          <ShoppingCart className="w-6 h-6 text-primary hover:text-primary/80" />
         </Link>
         {isLoggedIn ? (
           <Link href="/profile">
-            <User className="w-6 h-6 text-white hover:text-green-200" />
+            <User className="w-6 h-6 text-button-text hover:text-primary" />
           </Link>
         ) : (
           <Link href="/login">
-            <LogIn className="w-6 h-6 text-white hover:text-green-200" />
+            <LogIn className="w-6 h-6 text-button-text hover:text-primary" />
           </Link>
         )}
       </div>

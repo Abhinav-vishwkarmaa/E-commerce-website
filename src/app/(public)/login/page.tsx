@@ -85,7 +85,7 @@ export default function Page() {
     }
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-yellow-500 to-pink-500 animate-gradient">
+        <div className="flex justify-center items-center min-h-screen bg-background animate-gradient">
             <style jsx>{`
                 @keyframes gradient {
                     0% { background-position: 0% 50%; }
@@ -147,43 +147,43 @@ export default function Page() {
                 }
             `}</style>
             
-            <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-sm animate-fadeInUp transform hover:scale-[1.02] transition-transform duration-300">
-                <h4 className="text-center text-2xl font-semibold text-gray-800 mb-6 animate-fadeInUp">Login</h4>
+            <div className="bg-card shadow-2xl rounded-2xl p-8 w-full max-w-sm animate-fadeInUp transform hover:scale-[1.02] transition-transform duration-300 border">
+                <h4 className="text-center text-2xl font-semibold text-card-foreground mb-6 animate-fadeInUp">Login</h4>
                 
                 {/* Error Message */}
                 {error && (
-                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg animate-fadeIn animate-shake">
+                    <div className="mb-4 p-3 bg-destructive/10 border border-destructive text-destructive rounded-lg animate-fadeIn animate-shake">
                         <p className="text-sm font-medium">{error}</p>
                     </div>
                 )}
-                
+
                 {/* Success Message */}
                 {success && (
-                    <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg animate-fadeIn">
+                    <div className="mb-4 p-3 bg-primary/10 border border-primary text-primary rounded-lg animate-fadeIn">
                         <p className="text-sm font-medium">{success}</p>
                     </div>
                 )}
                 
                 <form className="flex flex-col space-y-4">
                     <div className="animate-fadeInUp" style={{animationDelay: '0.1s', opacity: 0, animationFillMode: 'forwards'}}>
-                        <label htmlFor="mobile" className="text-sm font-medium text-gray-700">Mobile Number</label>
-                        <input 
-                            type="tel" 
-                            id="mobile" 
-                            pattern="[0-9]{10}" 
-                            maxLength={10} 
+                        <label htmlFor="mobile" className="text-sm font-medium text-muted-foreground">Mobile Number</label>
+                        <input
+                            type="tel"
+                            id="mobile"
+                            pattern="[0-9]{10}"
+                            maxLength={10}
                             value={mobile}
-                            onChange={(e:any)=>setMobile(e.target.value.replace(/\D/g, ''))} 
-                            className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent text-black transition-all duration-300" 
+                            onChange={(e:any)=>setMobile(e.target.value.replace(/\D/g, ''))}
+                            className="w-full border border-border rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-primary text-foreground transition-all duration-300 bg-background"
                             placeholder="Enter 10-digit number"
                             disabled={otpbtn}
                         />
                     </div>
                     
                     {!otpbtn && (
-                        <button 
+                        <button
                             type="button"
-                            className="text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500 rounded-lg py-2 font-medium transform active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center animate-fadeInUp" 
+                            className="text-primary-foreground bg-gradient-to-r from-primary to-accent hover:from-primary hover:to-accent/80 focus:outline-none focus:ring-2 focus:ring-primary rounded-lg py-2 font-medium transform active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center animate-fadeInUp"
                             onClick={getOTP}
                             disabled={isLoading || mobile.length !== 10}
                             style={{animationDelay: '0.2s', opacity: 0, animationFillMode: 'forwards'}}
@@ -199,21 +199,21 @@ export default function Page() {
                     {otpbtn && (
                         <div className="animate-slideDown space-y-4">
                             <div>
-                                <label htmlFor="otp" className="text-sm font-medium text-gray-700">OTP</label>
-                                <input 
-                                    type="text" 
-                                    id="otp" 
+                                <label htmlFor="otp" className="text-sm font-medium text-muted-foreground">OTP</label>
+                                <input
+                                    type="text"
+                                    id="otp"
                                     maxLength={6}
                                     value={otp}
-                                    className="w-full text-black border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300" 
+                                    className="w-full text-foreground border border-border rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-primary bg-background transition-all duration-300"
                                     onChange={(e:any)=>Setotp(e.target.value.replace(/\D/g, ''))}
                                     placeholder="Enter OTP"
                                     autoFocus
                                 />
                             </div>
-                            <button 
+                            <button
                                 type="button"
-                                className="w-full text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500 rounded-lg py-2 font-medium transform active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center" 
+                                className="w-full text-primary-foreground bg-gradient-to-r from-primary to-accent hover:from-primary hover:to-accent/80 focus:outline-none focus:ring-2 focus:ring-primary rounded-lg py-2 font-medium transform active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                                 onClick={verifyOTP}
                                 disabled={isLoading || otp.length < 4}
                             >
@@ -226,7 +226,7 @@ export default function Page() {
                             
                             <button
                                 type="button"
-                                className="w-full text-pink-600 hover:text-pink-700 text-sm font-medium underline transition-colors duration-200"
+                                className="w-full text-primary hover:text-primary/80 text-sm font-medium underline transition-colors duration-200"
                                 onClick={() => {
                                     Setotpbtn(false)
                                     Setotp("")

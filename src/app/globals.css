@@ -11,6 +11,7 @@
   --border: #e6e6ea;
   --grid-stroke: #cccccc;
   --svg-fill: #666666;
+  --card-bg: #e6eef2; /* grey-200 for card backgrounds */
 }
 
 /* Theme helper variables (kept directly in :root). If you relied on a build
@@ -18,9 +19,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --primary: #4fd6a3; /* darker/lighter variant for dark mode */
+    --background: #4ea355a9;
+    --foreground: #151a17;
+    --primary: #42866a; /* darker/lighter variant for dark mode */
     --accent: #f6b84b;
     --button-text: #000000;
     --muted: #0f0f10;
@@ -52,6 +53,13 @@ svg [fill="#666"], svg [fill="#666666"] { fill: var(--svg-fill); }
 /* small helper classes so components can use var(--primary) when needed */
 .bg-primary { background-color: var(--primary); }
 .text-primary { color: var(--primary); }
+
+/* Card helpers: use a subtle grey for cards on white backgrounds */
+.bg-card { background-color: var(--card-bg); }
+.text-card { color: var(--foreground); }
+
+/* Slightly darker card accent (20% darker) - used for circular icon backgrounds inside cards */
+.bg-card-20 { background-color: color-mix(in srgb, var(--card-bg) 80%, rgb(214, 204, 204) 20%); }
 
 /* Button helpers */
 .btn-primary { background-color: var(--primary); color: var(--button-text); }

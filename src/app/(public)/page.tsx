@@ -11,12 +11,7 @@ import TrendingProducts from "./home/trending-product";
 
 export default function HomePage() {
   return (
-    <section className="min-h-screen bg-gradient-to-br bg-yellow-500 to-pink-500 text-white relative overflow-hidden">
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-      </div>
-
+    <section className="min-h-screen bg-background text-foreground relative overflow-hidden">
       <Navbar />
 
       <div className="relative z-10">
