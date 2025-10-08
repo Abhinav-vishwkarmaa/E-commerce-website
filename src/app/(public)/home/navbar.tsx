@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Heart, ShoppingCart, User, LogIn, Microscope, Search } from 'lucide-react';
+import { Heart, ShoppingCart, User, LogIn, Search } from 'lucide-react';
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Replace with real auth logic
@@ -16,7 +16,7 @@ export default function Navbar() {
     }else{
       setIsLoggedIn(false)
     }
-  })
+  }, [])
 
   // Load pincode from localStorage initially
   useEffect(() => {

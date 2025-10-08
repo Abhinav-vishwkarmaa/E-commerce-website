@@ -147,7 +147,7 @@ export default function Page() {
                 }
             `}</style>
             
-            <div className="bg-card shadow-2xl rounded-2xl p-8 w-full max-w-sm animate-fadeInUp transform hover:scale-[1.02] transition-transform duration-300 border">
+            <div className="bg-card shadow-2xl rounded-2xl p-8 w-full max-w-md animate-fadeInUp transform hover:scale-[1.02] transition-transform duration-300 border">
                 <h4 className="text-center text-2xl font-semibold text-card-foreground mb-6 animate-fadeInUp">Login</h4>
                 
                 {/* Error Message */}

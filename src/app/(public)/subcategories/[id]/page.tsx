@@ -5,17 +5,18 @@ import { useEffect, useState } from "react";
 import ProductCard from "@/components/products/product-card";
 
 export default function SubcategoriesPage() {
-  const { id } = useParams();
-  const categoryId = Array.isArray(id) ? id[0] : id;
-  const apiURL =
-    (process.env.NEXT_PUBLIC_BASE_URL ?? "") +
-    (process.env.NEXT_PUBLIC_API_VERSION ?? "");
+   const { id } = useParams();
+   const categoryId = Array.isArray(id) ? id[0] : id;
+   const apiURL =
+     (process.env.NEXT_PUBLIC_BASE_URL ?? "") +
+     (process.env.NEXT_PUBLIC_API_VERSION ?? "");
 
-  const [subcategories, setSubcategories] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
-  const [selectedSubcat, setSelectedSubcat] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+   const [subcategories, setSubcategories] = useState<any[]>([]);
+   const [products, setProducts] = useState<any[]>([]);
+   const [selectedSubcat, setSelectedSubcat] = useState<number | null>(null);
+   const [loading, setLoading] = useState(true);
+   const [error, setError] = useState<string | null>(null);
+   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const pin = typeof window !== "undefined" ? localStorage.getItem("pincode") || "" : "";
 
@@ -77,9 +78,9 @@ export default function SubcategoriesPage() {
   if (error) return <div className="text-center py-20 text-red-500">{error}</div>;
 
   return (
-    <div className="flex bg-background text-foreground">
+    <div className="flex flex-col md:flex-row bg-background text-foreground min-h-screen">
       {/* Subcategory Sidebar */}
-      <aside className="w-1/4 p-6 bg-card backdrop-blur-md overflow-y-auto hide-scrollbar">
+      <aside className={`w-full md:w-1/4 p-6 bg-card backdrop-blur-md overflow-y-auto hide-scrollbar ${isSidebarOpen ? 'block' : 'hidden'} md:block`}>
         <h2 className="text-xl font-bold mb-4">Subcategories</h2>
         <ul className="space-y-2">
           {subcategories.map((subcat) => (
@@ -99,7 +100,14 @@ export default function SubcategoriesPage() {
       </aside>
 
       {/* Products Grid */}
-      <main className="w-3/4 p-6 overflow-y-auto hide-scrollbar">
+      <main className="w-full md:w-3/4 p-6 overflow-y-auto hide-scrollbar">
+        {/* Mobile Sidebar Toggle */}
+        <button
+          className="md:hidden mb-4 p-2 bg-card rounded-lg shadow"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          {isSidebarOpen ? 'Hide Categories' : 'Show Categories'}
+        </button>
         {products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product) => (

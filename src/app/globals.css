@@ -19,7 +19,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #4ea355a9;
+    --background: rgba(188, 189, 188, 0.663);
     --foreground: #151a17;
     --primary: #42866a; /* darker/lighter variant for dark mode */
     --accent: #f6b84b;

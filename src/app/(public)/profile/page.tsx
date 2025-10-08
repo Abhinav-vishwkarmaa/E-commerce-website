@@ -39,9 +39,10 @@ interface OrderData {
 }
 
 export default function Profile() {
-  const router = useRouter();
-  const [active, setActive] = useState<"profile" | "orders" | "wishlist" | "cart" | "orderHistory">("profile");
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+   const router = useRouter();
+   const [active, setActive] = useState<"profile" | "orders" | "wishlist" | "cart" | "orderHistory">("profile");
+   const [showLogoutModal, setShowLogoutModal] = useState(false);
+   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const navigation = [
     { id: 1, nav: "profile", icon: <User size={20} />, label: "Profile" },
@@ -166,8 +167,18 @@ export default function Profile() {
       `}</style>
 
   <div className="flex min-h-screen bg-background text-foreground">
+        {/* Mobile Overlay */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-30 md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar - Fixed */}
-  <aside className="fixed left-0 top-0 h-screen w-80 p-6 bg-card backdrop-blur-xl shadow-2xl flex flex-col items-center border-r border-border animate-slideInLeft overflow-y-auto">
+  <aside className={`fixed left-0 top-0 h-screen w-80 p-6 bg-card backdrop-blur-xl shadow-2xl flex flex-col items-center border-r border-border animate-slideInLeft overflow-y-auto z-40 transform transition-transform duration-300 ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } md:translate-x-0`}>
           <div className="mb-8 text-center">
             <div className="w-24 h-24 bg-card-20 rounded-full mx-auto mb-4 flex items-center justify-center shadow-xl ring-4 ring-card-20 transition-transform duration-300 hover:scale-110">
               {profileData?.image ? (
@@ -201,8 +212,18 @@ export default function Profile() {
           </nav>
         </aside>
 
-        {/* Main Content - With left margin to account for fixed sidebar */}
-        <main className="flex-1 ml-80 p-8 overflow-y-auto animate-slideInRight">
+         {/* Mobile Menu Button */}
+         <button
+           className="md:hidden fixed top-4 left-4 z-50 p-2 bg-card rounded-lg shadow-lg"
+           onClick={() => setIsSidebarOpen(true)}
+         >
+           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+           </svg>
+         </button>
+
+         {/* Main Content - With left margin to account for fixed sidebar */}
+         <main className="flex-1 md:ml-80 p-8 overflow-y-auto animate-slideInRight">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
               <h1 className="text-4xl font-bold drop-shadow-lg animate-fadeIn">
