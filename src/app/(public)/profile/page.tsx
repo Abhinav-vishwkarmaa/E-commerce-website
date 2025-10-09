@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { User, ShoppingBag, Heart, ShoppingCart, LogOut, Mail, Phone, MapPin, X } from "lucide-react";
 import Order from "@/components/account/orders";
 import OrderHistory from "@/components/account/orderHistory";
+import Cart from "@/components/account/cart";
 
 const apiUrl =
   (process.env.NEXT_PUBLIC_BASE_URL ?? "") +
@@ -20,12 +21,6 @@ interface UserData {
   status: number;
 }
 
-interface ProfileResponse {
-  status: boolean;
-  code: number;
-  data: UserData;
-}
-
 interface OrderData {
   id: number;
   order_id: string;
@@ -38,17 +33,28 @@ interface OrderData {
   address: any;
 }
 
-export default function Profile() {
-   const router = useRouter();
-   const [active, setActive] = useState<"profile" | "orders" | "wishlist" | "cart" | "orderHistory">("profile");
-   const [showLogoutModal, setShowLogoutModal] = useState(false);
-   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+// Separate component that uses useSearchParams
+function ProfileContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const sectionParam = searchParams.get('section');
+  
+  const [active, setActive] = useState<"profile" | "orders" | "wishlist" | "cart" | "orderHistory">("profile");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Set active section based on URL parameter
+  useEffect(() => {
+    if (sectionParam && ['profile', 'orders', 'wishlist', 'cart', 'orderHistory'].includes(sectionParam)) {
+      setActive(sectionParam as typeof active);
+    }
+  }, [sectionParam]);
 
   const navigation = [
     { id: 1, nav: "profile", icon: <User size={20} />, label: "Profile" },
-    { id: 2, nav: "orders", icon: <ShoppingBag size={20} />, label: "Current Orders" },
-    { id: 3, nav: "wishlist", icon: <Heart size={20} />, label: "Wishlist" },
     { id: 4, nav: "cart", icon: <ShoppingCart size={20} />, label: "Cart" },
+    { id: 3, nav: "wishlist", icon: <Heart size={20} />, label: "Wishlist" },
+    { id: 2, nav: "orders", icon: <ShoppingBag size={20} />, label: "Current Orders" },
     { id: 5, nav: "orderHistory", icon: <ShoppingBag size={20} />, label: "Order History" },
     { id: 6, nav: "logout", icon: <LogOut size={20} />, label: "Logout" },
   ];
@@ -56,7 +62,7 @@ export default function Profile() {
   const [profileData, setProfile] = useState<UserData | null>(null);
   const [orders, setOrders] = useState<OrderData[]>([]);
   const [wishlist, setWishlist] = useState<any[]>([]);
-  const [cart, setCart] = useState<any[]>([]);
+  const [cart, setCart] = useState<any>(null);
   const [orderHistory, setOrderHistory] = useState<OrderData[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -71,6 +77,7 @@ export default function Profile() {
       return;
     }
     setActive(item.nav as any);
+    router.push(`/profile?section=${item.nav}`, { scroll: false });
   };
 
   const fetchData = async (endpoint: string, setter: any) => {
@@ -78,19 +85,30 @@ export default function Profile() {
     try {
       const token = localStorage.getItem("ilb-token");
       const response = await fetch(`${apiUrl}/${endpoint}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'x-user-pincode': localStorage.getItem("pincode") || ''
+        },
       });
       const result = await response.json();
       
       if (result.success || result.status) {
-        setter(result.data || []);
+        if (endpoint.includes("cart")) {
+          setter(result.data);
+        } else {
+          setter(result.data || []);
+        }
       }
     } catch (err) {
       console.error("Fetch error:", err);
-      setter(endpoint.includes("profile") ? null : []);
+      setter(endpoint.includes("profile") ? null : endpoint.includes("cart") ? null : []);
     } finally {
       setLoading(false);
     }
+  };
+
+  const refreshCart = () => {
+    fetchData("user/cart", setCart);
   };
 
   useEffect(() => {
@@ -146,15 +164,6 @@ export default function Profile() {
             transform: translateX(0);
           }
         }
-        @keyframes gradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 8s ease infinite;
-        }
         .animate-fadeIn {
           animation: fadeIn 0.3s ease-out;
         }
@@ -166,7 +175,7 @@ export default function Profile() {
         }
       `}</style>
 
-  <div className="flex min-h-screen bg-background text-foreground">
+      <div className="flex min-h-screen bg-background text-foreground">
         {/* Mobile Overlay */}
         {isSidebarOpen && (
           <div
@@ -176,7 +185,7 @@ export default function Profile() {
         )}
 
         {/* Sidebar - Fixed */}
-  <aside className={`fixed left-0 top-0 h-screen w-80 p-6 bg-card backdrop-blur-xl shadow-2xl flex flex-col items-center border-r border-border animate-slideInLeft overflow-y-auto z-40 transform transition-transform duration-300 ${
+        <aside className={`fixed left-0 top-0 h-screen w-80 p-6 bg-card backdrop-blur-xl shadow-2xl flex flex-col items-center border-r border-border animate-slideInLeft overflow-y-auto z-40 transform transition-transform duration-300 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}>
           <div className="mb-8 text-center">
@@ -212,18 +221,18 @@ export default function Profile() {
           </nav>
         </aside>
 
-         {/* Mobile Menu Button */}
-         <button
-           className="md:hidden fixed top-4 left-4 z-50 p-2 bg-card rounded-lg shadow-lg"
-           onClick={() => setIsSidebarOpen(true)}
-         >
-           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-           </svg>
-         </button>
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden fixed top-4 left-4 z-50 p-2 bg-card rounded-lg shadow-lg"
+          onClick={() => setIsSidebarOpen(true)}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
 
-         {/* Main Content - With left margin to account for fixed sidebar */}
-         <main className="flex-1 md:ml-80 p-8 overflow-y-auto animate-slideInRight">
+        {/* Main Content */}
+        <main className="flex-1 md:ml-80 p-8 overflow-y-auto animate-slideInRight">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
               <h1 className="text-4xl font-bold drop-shadow-lg animate-fadeIn">
@@ -235,11 +244,11 @@ export default function Profile() {
             {loading && (
               <div className="flex items-center justify-center py-20 animate-fadeIn">
                 <div className="relative">
-                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-card-20 border-t-card-50"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="h-8 w-8 bg-card-20 rounded-full"></div>
-                    </div>
+                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-card-20 border-t-card-50"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="h-8 w-8 bg-card-20 rounded-full"></div>
                   </div>
+                </div>
               </div>
             )}
 
@@ -290,22 +299,9 @@ export default function Profile() {
               </div>
             )}
 
-            {/* Orders */}
-            {active === "orders" && !loading && (
-              <div className="animate-fadeIn">
-                {orders.length > 0 ? (
-                  <div className="space-y-4">
-                    {orders.map((order) => <Order key={order.id} order={order} />)}
-                  </div>
-                ) : (
-                  <div className="bg-card backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-border">
-                    <div className="text-center py-16">
-                      <ShoppingBag size={64} className="mx-auto text-button-text/50 mb-4" />
-                      <p className="text-xl text-button-text/80">No active orders found.</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+            {/* Cart */}
+            {active === "cart" && !loading && (
+              <Cart cartData={cart} onRefresh={refreshCart} />
             )}
 
             {/* Wishlist */}
@@ -324,19 +320,20 @@ export default function Profile() {
                 )}
               </div>
             )}
-
-            {/* Cart */}
-            {active === "cart" && !loading && (
-              <div className="bg-card backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-border animate-fadeIn">
-                <h2 className="text-2xl font-bold mb-6 text-button-text drop-shadow-lg">My Cart</h2>
-                {cart.length > 0 ? (
+            
+            {/* Orders */}
+            {active === "orders" && !loading && (
+              <div className="animate-fadeIn">
+                {orders.length > 0 ? (
                   <div className="space-y-4">
-                    {/* Render cart items */}
+                    {orders.map((order) => <Order key={order.id} order={order} />)}
                   </div>
                 ) : (
-                  <div className="text-center py-16">
-                    <ShoppingCart size={64} className="mx-auto text-button-text/50 mb-4" />
-                    <p className="text-xl text-button-text/80">Your cart is empty.</p>
+                  <div className="bg-card backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-border">
+                    <div className="text-center py-16">
+                      <ShoppingBag size={64} className="mx-auto text-button-text/50 mb-4" />
+                      <p className="text-xl text-button-text/80">No active orders found.</p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -400,5 +397,18 @@ export default function Profile() {
         </div>
       )}
     </>
+  );
+}
+
+// Main component with Suspense boundary
+export default function Profile() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-card-20 border-t-card-50"></div>
+      </div>
+    }>
+      <ProfileContent />
+    </Suspense>
   );
 }

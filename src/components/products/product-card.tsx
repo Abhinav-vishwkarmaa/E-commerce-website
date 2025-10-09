@@ -4,6 +4,9 @@ import React from "react";
 import Image from "next/image";
 import { Star, Heart, ShoppingCart, Eye, IndianRupee } from "lucide-react";
 import Link from "next/link";
+const apiUrl =
+  (process.env.NEXT_PUBLIC_BASE_URL ?? "") +
+  (process.env.NEXT_PUBLIC_API_VERSION ?? "");
 
 interface ProductCardProps {
   product: {
@@ -36,6 +39,7 @@ export default function ProductCard({ product, showDiscount }: ProductCardProps)
   const salePrice = product.price?.sale_price || parseFloat(product.sale_price || "0") || 0;
   const discount = mrp && salePrice ? mrp - salePrice : 0;
   const rating = product.rating?.average;
+
   
   // Handle product name from different formats
   const productName = product.name || product.product_name || "Product";
@@ -52,6 +56,16 @@ export default function ProductCard({ product, showDiscount }: ProductCardProps)
     }
   } else if (product.image && product.image !== "") {
     imageSrc = product.image;
+  }
+  const addToCart = async () => {
+    const response = await fetch(`${apiUrl}/user/cart`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem("ilb-token")}`
+      },
+      body: JSON.stringify({ seller_product_id: product.seller_product_id ,quantity:1})
+    });
   }
 
   return (
@@ -117,10 +131,11 @@ export default function ProductCard({ product, showDiscount }: ProductCardProps)
                 className="flex items-center space-x-1 text-primary hover:text-primary/80 transition-colors"
                 onClick={(e) => {
                   e.preventDefault();
-                  // Add to cart logic here
+                  e.stopPropagation();
+                  addToCart();
                 }}
               >
-                <ShoppingCart className="w-5 h-5" />
+                <ShoppingCart className="w-5 h-5 cursor-pointer" />
                 <span className="text-sm font-medium">Add</span>
               </button>
             )}
