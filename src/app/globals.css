@@ -2,16 +2,16 @@
 
 :root {
   /* Core palette - single source of truth for colors used across the app */
-  --background: #FFFFFF; /* Main Background */
-  --foreground: #2D3748; /* Main Text (dark charcoal) */
+  --background: lab(79.18% 1.74 0.61); /* Main Background */
+  --foreground: #5792ae; /* Main Text (dark charcoal) */
   --primary: #02A684; /* Primary Green */
   --accent: #F5A623; /* Accent Saffron */
   --button-text: #FFFFFF; /* Button text color */
   --muted: #f4f4f6;
-  --border: #e6e6ea;
+  --border: #9494d7;
   --grid-stroke: #cccccc;
   --svg-fill: #666666;
-  --card-bg: #e6eef2; /* grey-200 for card backgrounds */
+  --card-bg: #a1d7f1; /* grey-200 for card backgrounds */
 }
 
 /* Theme helper variables (kept directly in :root). If you relied on a build
@@ -19,7 +19,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: rgba(188, 189, 188, 0.663);
+    --background: rgb(255, 255, 255);
     --foreground: #151a17;
     --primary: #42866a; /* darker/lighter variant for dark mode */
     --accent: #f6b84b;

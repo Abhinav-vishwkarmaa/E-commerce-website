@@ -39,7 +39,7 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 w-full bg-background/10 backdrop-blur-md flex justify-between items-center px-6 py-4 z-50">
       {/* Left: Logo */}
-      <div className="text-button-text font-bold text-xl">mummabite</div>
+      <div className="text-primary font-bold text-xl">ILB Mart</div>
 
       {/* Center: Navigation */}
       <div className="flex space-x-6">
@@ -51,18 +51,25 @@ export default function Navbar() {
 
       {/* Right: Pincode Input + Wishlist/Cart/Profile */}
       <div className="flex items-center space-x-2">
-        <input
-          type="number"
-          placeholder="pincode"
-          value={pincode}
-          onChange={(e) => setPincode(e.target.value)}
-          className="px-3 py-1 border rounded"
-        />
-        <Search
-          size={24}
-          className="cursor-pointer text-foreground hover:text-primary hover:bg-muted p-1 rounded transition-colors duration-200"
-          onClick={setLocal}
-        />
+<div className="relative w-full max-w-sm">
+
+  <input
+    type="number"
+    placeholder="pincode"
+    value={pincode}
+    onChange={(e) => setPincode(e.target.value)}
+    className="w-full pr-10 pl-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary
+               appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+  />
+  <button
+    onClick={setLocal}
+    className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-gray-600 hover:text-primary transition-colors cursor-pointer"
+  >
+    <Search size={20} />
+  </button>
+
+</div>
+
 
 
         <Link href="/wishlist">
