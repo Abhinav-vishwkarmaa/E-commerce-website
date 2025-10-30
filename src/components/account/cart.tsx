@@ -6,6 +6,17 @@ const apiUrl =
   (process.env.NEXT_PUBLIC_BASE_URL ?? "") +
   (process.env.NEXT_PUBLIC_API_VERSION ?? "");
 
+// Razorpay script load karo
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 interface CartItem {
   cart_id: number;
   seller_product_id: number;
@@ -58,8 +69,158 @@ export default function Cart({ cartData, onRefresh }: CartProps) {
   const [couponCode, setCouponCode] = useState("");
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [tipAmount, setTipAmount] = useState(0);
-  const placeOrder = async () => {
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const [deliveryNotes, setDeliveryNotes] = useState("Please deliver in the morning");
+
+  // ✅ Razorpay Payment Handler
+  const initiateRazorpayPayment = async () => {
     try {
+      setProcessingPayment(true);
+
+      // Step 1: Razorpay script load karo
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        alert('Failed to load Razorpay SDK. Please check your internet connection.');
+        setProcessingPayment(false);
+        return;
+      }
+
+      // Step 2: Backend se order create karo
+      const token = localStorage.getItem("ilb-token");
+      const orderResponse = await fetch(`${apiUrl}/user/orders`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          payment_method: "online",
+          delivery_notes: deliveryNotes
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json();
+        alert(`Failed to create order: ${errorData.message}`);
+        setProcessingPayment(false);
+        return;
+      }
+
+      const response = await orderResponse.json();
+      console.log('✅ Order created:', response);
+
+      // Backend se razorpay data extract karo
+      const razorpayData = response.data.razorpay;
+      const transactionNumber = response.data.transaction_number;
+      const orderNumber = response.data.orders[0]?.order_number;
+
+      if (!razorpayData || !razorpayData.order_id) {
+        alert('Razorpay order ID not received from server');
+        setProcessingPayment(false);
+        return;
+      }
+
+      // Step 3: Razorpay Checkout open karo
+      const options = {
+        key: razorpayData.key, // Backend se aa raha hai
+        amount: razorpayData.amount, // Amount in paise (already from backend)
+        currency: razorpayData.currency,
+        name: razorpayData.name,
+        description: razorpayData.description,
+        order_id: razorpayData.order_id, // ✅ Ye important hai
+        handler: async function (razorpayResponse: any) {
+          console.log('✅ Payment successful:', razorpayResponse);
+          
+          try {
+            // Verify payment with backend instead of relying solely on webhooks
+            const verifyResponse = await fetch(`${apiUrl}/user/orders/verify-payment`, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("ilb-token")}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_order_id: razorpayResponse.razorpay_order_id,
+                razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                razorpay_signature: razorpayResponse.razorpay_signature
+              }),
+            });
+
+            if (verifyResponse.ok) {
+              const verifyData = await verifyResponse.json();
+              console.log('✅ Payment verified:', verifyData);
+              
+              alert(`🎉 Payment Successful!\n\nOrder Number: ${orderNumber}\nTransaction: ${transactionNumber}\nPayment ID: ${razorpayResponse.razorpay_payment_id}\n\nYour order has been confirmed!`);
+            } else {
+              console.warn('Payment verification failed, but webhook will update status');
+              alert(`🎉 Payment Completed!\n\nOrder Number: ${orderNumber}\nTransaction: ${transactionNumber}\nPayment ID: ${razorpayResponse.razorpay_payment_id}\n\nYour order has been confirmed! Status will be updated shortly.`);
+            }
+            
+            // Cart refresh karo
+            onRefresh();
+            
+            // Optional: Redirect to orders page after a delay
+            setTimeout(() => {
+              window.location.href = '/profile?section=orders';
+            }, 2000);
+            
+          } catch (error) {
+            console.error('Post payment error:', error);
+            alert(`✅ Payment Completed!\n\nTransaction: ${transactionNumber}\nPayment ID: ${razorpayResponse.razorpay_payment_id}\n\nPlease check your order status for confirmation.`);
+          } finally {
+            setProcessingPayment(false);
+          }
+        },
+        prefill: {
+          name: "", // Add customer name if available
+          email: "", // Add customer email if available
+          contact: "" // Add customer phone if available
+        },
+        notes: {
+          transaction_number: transactionNumber,
+          order_number: orderNumber
+        },
+        theme: {
+          color: "#2563eb" // Your brand color (blue-600)
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('❌ Payment cancelled by user');
+            alert('Payment cancelled. Your order has been saved but not confirmed.\n\nTransaction: ' + transactionNumber);
+            setProcessingPayment(false);
+            
+            // Optional: Cancel order on backend
+            // cancelPendingOrder(transactionNumber);
+          }
+        }
+      };
+
+      const razorpay = new (window as any).Razorpay(options);
+      
+      razorpay.on('payment.failed', function (response: any) {
+        console.error('❌ Payment failed:', response.error);
+        alert(`❌ Payment Failed\n\n${response.error.description}\n\nTransaction: ${transactionNumber}\n\nPlease try again or contact support.`);
+        setProcessingPayment(false);
+        
+        // Optional: Update order status to failed
+        // updateOrderStatus(transactionNumber, 'failed');
+      });
+
+      // Open Razorpay checkout
+      razorpay.open();
+
+    } catch (error) {
+      console.error('💥 Payment initiation error:', error);
+      alert('Error initiating payment. Please try again.');
+      setProcessingPayment(false);
+    }
+  };
+
+  // COD Order Handler
+  const placeCODOrder = async () => {
+    try {
+      setProcessingPayment(true);
+      
       const token = localStorage.getItem("ilb-token");
       const response = await fetch(`${apiUrl}/user/orders`, {
         method: "POST",
@@ -69,20 +230,33 @@ export default function Cart({ cartData, onRefresh }: CartProps) {
         },
         body: JSON.stringify({
           payment_method: "cod",
-          delivery_notes: "Please deliver in the morning"
+          delivery_notes: deliveryNotes
         }),
       });
 
       if (response.ok) {
+        const data = await response.json();
+        const orderNumber = data.data?.orders[0]?.order_number;
+        const transactionNumber = data.data?.transaction_number;
+        
+        alert(`✅ Order Placed Successfully!\n\nOrder Number: ${orderNumber}\nTransaction: ${transactionNumber}\n\nPayment: Cash on Delivery`);
+        
         onRefresh();
-        alert("Order placed successfully!");
+        
+        // Optional: Redirect to orders page
+        // setTimeout(() => {
+        //   window.location.href = '/orders';
+        // }, 1500);
+        
       } else {
         const errorData = await response.json();
         alert(`Failed to place order: ${errorData.message}`);
       }
     } catch (err) {
       console.error("Place order error:", err);
-      alert("Error placing order");
+      alert("Error placing order. Please try again.");
+    } finally {
+      setProcessingPayment(false);
     }
   };
 
@@ -173,7 +347,7 @@ export default function Cart({ cartData, onRefresh }: CartProps) {
     setUpdating(true);
     try {
       const token = localStorage.getItem("ilb-token");
-      const response = await fetch(`${apiUrl}/user/cart/clear`, {
+      const response = await fetch(`${apiUrl}/user/cart/items`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -385,7 +559,7 @@ export default function Cart({ cartData, onRefresh }: CartProps) {
           </div>
         ))}
       </div>
-        
+         
       {/* Order Summary - Sticky */}
       <div className="lg:col-span-1">
         <div className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 lg:sticky lg:top-24">
@@ -462,6 +636,18 @@ export default function Cart({ cartData, onRefresh }: CartProps) {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            {/* Delivery Notes Section */}
+            <div className="border-t border-gray-200 pt-3">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Delivery Notes (Optional)</label>
+              <textarea
+                placeholder="Any special instructions for delivery..."
+                value={deliveryNotes}
+                onChange={(e) => setDeliveryNotes(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={3}
+              />
+            </div>
           </div>
 
           <div className="border-t border-gray-300 pt-4 mb-6">
@@ -473,17 +659,69 @@ export default function Cart({ cartData, onRefresh }: CartProps) {
             </div>
           </div>
 
-          <button 
-            className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            disabled={items.some(item => !item.is_available)}
-            onClick={(e)=>{
-                e.preventDefault()
-                e.stopPropagation()
-                placeOrder()
-            }}
-          >
-            {items.some(item => !item.is_available) ? 'Remove unavailable items' : 'Proceed to Checkout'}
-          </button>
+          {/* Payment Buttons */}
+          <div className="space-y-3">
+            {/* Online Payment Button */}
+            <button 
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-[1.02] disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+              disabled={items.some(item => !item.is_available) || processingPayment}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                initiateRazorpayPayment();
+              }}
+            >
+              {processingPayment ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                  <span>Pay Online (Razorpay)</span>
+                </>
+              )}
+            </button>
+
+            {/* COD Button */}
+            <button 
+              className="w-full bg-gray-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:bg-gray-800 transition-all duration-300 transform hover:scale-[1.02] disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+              disabled={items.some(item => !item.is_available) || processingPayment}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                placeCODOrder();
+              }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span>Cash on Delivery</span>
+            </button>
+          </div>
+
+          {items.some(item => !item.is_available) && (
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-700 text-center font-medium">
+                ⚠️ Please remove unavailable items to proceed
+              </p>
+            </div>
+          )}
+
+          {/* Security Badge */}
+          <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-center gap-2 justify-center">
+              <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <p className="text-xs text-green-800 font-medium">
+                100% Secure Payment
+              </p>
+            </div>
+          </div>
 
           {/* Additional Info */}
           <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">

@@ -17,8 +17,8 @@ type OrderType = {
   id: number;
   order_id: string;
   order_status: string;
+  grand_total: string;
   payment_status?: string;
-  total_amount: string;
   payment_type: string;
   created_at: string;
   delivery_address: string;
@@ -240,7 +240,7 @@ export default function OrderHistory({ order }: OrderHistoryProps) {
                 </div>
                 <div>
                   <p className="text-foreground/70 text-xs font-medium mb-1">Total Amount</p>
-                  <p className="text-foreground font-bold text-2xl">₹{parseFloat(order.total_amount).toFixed(2)}</p>
+                  <p className="text-foreground font-bold text-2xl">₹{parseFloat(order.grand_total).toFixed(2)}</p>
                 </div>
               </div>
             </div>

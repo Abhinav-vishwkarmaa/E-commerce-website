@@ -5,6 +5,7 @@ import { User, ShoppingBag, Heart, ShoppingCart, LogOut, Mail, Phone, MapPin, X 
 import Order from "@/components/account/orders";
 import OrderHistory from "@/components/account/orderHistory";
 import Cart from "@/components/account/cart";
+import Wishlist from "@/components/account/wishlist";
 
 const apiUrl =
   (process.env.NEXT_PUBLIC_BASE_URL ?? "") +
@@ -24,7 +25,7 @@ interface UserData {
 interface OrderData {
   id: number;
   order_id: string;
-  total_amount: string;
+  grand_total: string;
   order_status: string;
   payment_type: string;
   image?: string;
@@ -79,13 +80,13 @@ function ProfileContent() {
     setActive(item.nav as any);
     router.push(`/profile?section=${item.nav}`, { scroll: false });
   };
-
+  console.log(wishlist);
   const fetchData = async (endpoint: string, setter: any) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("ilb-token");
       const response = await fetch(`${apiUrl}/${endpoint}`, {
-        headers: { 
+        headers: {
           Authorization: `Bearer ${token}`,
           'x-user-pincode': localStorage.getItem("pincode") || ''
         },
@@ -104,6 +105,57 @@ function ProfileContent() {
       setter(endpoint.includes("profile") ? null : endpoint.includes("cart") ? null : []);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const removeFromWishlist = async (wishlistId: number) => {
+    try {
+      const token = localStorage.getItem("ilb-token");
+      const response = await fetch(`${apiUrl}/user/wishlist/${wishlistId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        fetchData("user/wishlist", setWishlist);
+      } else {
+        alert("Failed to remove item from wishlist");
+      }
+    } catch (err) {
+      console.error("Remove from wishlist error:", err);
+      alert("Error removing item from wishlist");
+    }
+  };
+
+  const addToCartFromWishlist = async (item: any) => {
+    try {
+      const token = localStorage.getItem("ilb-token");
+      const response = await fetch(`${apiUrl}/user/cart/items`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          seller_product_id: item.seller_product_id,
+          quantity: 1,
+          pincode: item.pincode
+        }),
+      });
+
+      if (response.ok) {
+        alert("Item added to cart successfully!");
+        fetchData("user/cart", setCart);
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to add to cart: ${errorData.message}`);
+      }
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      alert("Error adding item to cart");
     }
   };
 
@@ -310,7 +362,15 @@ function ProfileContent() {
                 <h2 className="text-2xl font-bold mb-6 text-button-text drop-shadow-lg">My Wishlist</h2>
                 {wishlist.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Render wishlist items */}
+                    {wishlist.map((item) => (
+                      <div key={item.wishlist_id} >
+                        <Wishlist
+                          item={item}
+                          onRemove={removeFromWishlist}
+                          onAddToCart={addToCartFromWishlist}
+                        />
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="text-center py-16">

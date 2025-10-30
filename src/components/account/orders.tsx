@@ -13,9 +13,8 @@ type Address = {
 type OrderType = {
   id: number;
   order_id: string;
-  payment_status?: string;
   order_status: string;
-  total_amount: string;
+  grand_total: string;
   payment_type: string;
   created_at: string;
   delivery_address: string;
@@ -62,13 +61,12 @@ export default function Order({ order }: OrderProps) {
     return <Package size={20} />;
   };
 
-  const getPaymentStatusColor = (status: string | undefined) => {
-    if (!status) return 'bg-gray-500';
+  const getPaymentStatusColor = (status: string) => {
     const statusLower = status.toLowerCase();
-    if (statusLower.includes('paid') || statusLower.includes('success')) {
+    if (statusLower.includes('paid') || statusLower.includes('success') || statusLower.includes('online')) {
       return 'bg-green-500';
     }
-    if (statusLower.includes('pending')) {
+    if (statusLower.includes('pending') || statusLower.includes('cod')) {
       return 'bg-yellow-500';
     }
     if (statusLower.includes('failed') || statusLower.includes('cancelled')) {
@@ -194,15 +192,13 @@ export default function Order({ order }: OrderProps) {
                     </span>
                   </div>
 
-                  {/* Payment Status */}
-                  {order.payment_status && (
-                    <div className={`${getPaymentStatusColor(order.payment_status)} px-4 py-2 rounded-full shadow-lg flex items-center gap-2 transform transition-all duration-300 hover:scale-105`}>
-                      <CreditCard size={16} className="text-button-text" />
-                      <span className="font-bold text-button-text text-xs uppercase tracking-wider">
-                        {order.payment_status}
-                      </span>
-                    </div>
-                  )}
+                  {/* Payment Type */}
+                  <div className={`${getPaymentStatusColor(order.payment_type)} px-4 py-2 rounded-full shadow-lg flex items-center gap-2 transform transition-all duration-300 hover:scale-105`}>
+                    <CreditCard size={16} className="text-button-text" />
+                    <span className="font-bold text-button-text text-xs uppercase tracking-wider">
+                      {order.payment_type}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -230,7 +226,7 @@ export default function Order({ order }: OrderProps) {
                 </div>
                 <div>
                   <p className="text-foreground/70 text-xs font-medium mb-1">Total Amount</p>
-                  <p className="text-foreground font-bold text-2xl">₹{parseFloat(order.total_amount).toFixed(2)}</p>
+                  <p className="text-foreground font-bold text-2xl">₹{parseFloat(order.grand_total).toFixed(2)}</p>
                 </div>
               </div>
             </div>
@@ -255,6 +251,11 @@ export default function Order({ order }: OrderProps) {
           <button className="w-full btn-accent font-bold py-3.5 px-6 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
             <Truck size={20} />
             <span>Track Order</span>
+            <span>Cancel Order</span>
+          </button>
+                    <button className="w-full btn-accent font-bold py-3.5 px-6 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+            <Truck size={20} />
+            <span>Cancel Order</span>
           </button>
         </div>
       </div>

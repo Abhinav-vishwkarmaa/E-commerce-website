@@ -64,9 +64,72 @@ export default function ProductCard({ product, showDiscount }: ProductCardProps)
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem("ilb-token")}`
       },
-      body: JSON.stringify({ seller_product_id: product.seller_product_id ,quantity:1})
+      body: JSON.stringify({ seller_product_id: product.seller_product_id, quantity: 1 })
     });
   }
+
+const addToWishlist = async () => {
+  const token = localStorage.getItem("ilb-token");
+
+  // 1️⃣ Check authentication
+  if (!token) {
+    alert("Please log in to add items to your wishlist.");
+    return;
+  }
+
+  try {
+    // 2️⃣ Make API request
+    const response = await fetch(`${apiUrl}/user/wishlist`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ seller_product_id: product?.seller_product_id }),
+    });
+
+    console.log("Response status:", response.status);
+
+    // 3️⃣ Safely handle both JSON and plain-text responses
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      const text = await response.text();
+      data = { message: text || "No response body" };
+    }
+
+    console.log("Response data:", data);
+
+    // 4️⃣ Check HTTP status codes
+    if (response.ok && data.success) {
+      alert(data.message || "Product added to wishlist!");
+    } else if (response.status === 401) {
+      alert("Session expired. Please log in again.");
+      localStorage.removeItem("ilb-token");
+    } else if (response.status === 400) {
+      alert(data.message || "Invalid request. Please check product details.");
+    } else if (response.status === 404) {
+      alert("Wishlist endpoint not found. Please contact support.");
+    } else if (response.status === 500) {
+      alert("Server error. Please try again later.");
+    } else {
+      alert(data.message || "Something went wrong. Please try again.");
+    }
+
+  } catch (error) {
+    // 5️⃣ Network or unexpected errors
+    console.error("⚠️ Network or runtime error:", error);
+    if (error.name === "TypeError" && error.message.includes("Failed to fetch")) {
+      alert("Network error — please check your internet connection.");
+    } else {
+      alert("Unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+
+
 
   return (
     <Link href={`/products/${product.seller_product_id}`}>
@@ -125,33 +188,35 @@ export default function ProductCard({ product, showDiscount }: ProductCardProps)
           </div>
 
           {/* Action Icons */}
-          <div className="flex justify-between items-center mt-4">
+          <div className="flex justify-between items-center mt-4 ">
             {salePrice > 0 && (
               <button 
-                className="flex items-center space-x-1 text-primary hover:text-primary/80 transition-colors"
+                className="flex items-center space-x-1 text-primary hover:text-xl transition-colors cursor-pointer"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   addToCart();
                 }}
               >
-                <ShoppingCart className="w-5 h-5 cursor-pointer" />
+                <ShoppingCart className="w-5 h-5 " />
                 <span className="text-sm font-medium">Add</span>
               </button>
             )}
 
             <button 
-              className="text-accent hover:text-accent/80 transition-colors"
+              className="text-accent hover:text-accent/80 transition-colors cursor-pointer"
               onClick={(e) => {
                 e.preventDefault();
                 // Add to wishlist logic here
+                e.stopPropagation();
+                addToWishlist();
               }}
             >
               <Heart className="w-5 h-5" />
             </button>
 
             <button 
-              className="text-card-foreground/80 hover:text-card-foreground transition-colors"
+              className="text-card-foreground/80 hover:text-card-foreground transition-colors cursor-pointer"
               onClick={(e) => {
                 e.preventDefault();
                 // Quick view logic here

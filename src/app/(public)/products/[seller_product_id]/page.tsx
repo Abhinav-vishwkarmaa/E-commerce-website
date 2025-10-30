@@ -65,6 +65,34 @@ export default function ProductDetailPage() {
     const apiUrl =
   (process.env.NEXT_PUBLIC_BASE_URL ?? "") +
   (process.env.NEXT_PUBLIC_API_VERSION ?? "");
+      const addToCart = async () => {
+      const token = localStorage.getItem("ilb-token");
+      if (!token) {
+        alert("Please log in to add items to your cart.");
+        return;
+      }
+      try {
+        const response = await fetch(`${apiUrl}/user/cart`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            seller_product_id: seller_product_id,
+            quantity,
+          }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          alert(`${quantity} x ${product.name} added to cart`);
+        } else {
+          alert("Failed to add item to cart");
+        }
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+      }
+    };
   
   // --- REPLACEMENT FOR NEXT.JS HOOKS ---
   
@@ -228,7 +256,11 @@ export default function ProductDetailPage() {
 
               {/* Add to Cart */}
               <button
-                onClick={() => alert(`${quantity} x ${product.name} added to cart`)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  addToCart();
+                }}
                 disabled={currentStock === 0}
                 className="w-full md:w-auto btn-primary px-6 py-3 rounded-xl shadow-md font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
               >
