@@ -132,7 +132,7 @@ export default function Cart({ cartData, onRefresh }: CartProps) {
           console.log('✅ Payment successful:', razorpayResponse);
           
           try {
-            // Verify payment with backend instead of relying solely on webhooks
+            // Verify payment with backend
             const verifyResponse = await fetch(`${apiUrl}/user/orders/verify-payment`, {
               method: 'POST',
               headers: {
@@ -149,11 +149,38 @@ export default function Cart({ cartData, onRefresh }: CartProps) {
             if (verifyResponse.ok) {
               const verifyData = await verifyResponse.json();
               console.log('✅ Payment verified:', verifyData);
+              console.log('📋 Payment details:', {
+                order_id: razorpayResponse.razorpay_order_id,
+                payment_id: razorpayResponse.razorpay_payment_id,
+                signature: razorpayResponse.razorpay_signature?.substring(0, 10) + '...'
+              });
               
               alert(`🎉 Payment Successful!\n\nOrder Number: ${orderNumber}\nTransaction: ${transactionNumber}\nPayment ID: ${razorpayResponse.razorpay_payment_id}\n\nYour order has been confirmed!`);
             } else {
-              console.warn('Payment verification failed, but webhook will update status');
-              alert(`🎉 Payment Completed!\n\nOrder Number: ${orderNumber}\nTransaction: ${transactionNumber}\nPayment ID: ${razorpayResponse.razorpay_payment_id}\n\nYour order has been confirmed! Status will be updated shortly.`);
+              const errorText = await verifyResponse.text();
+              console.error('Payment verification failed:', {
+                status: verifyResponse.status,
+                statusText: verifyResponse.statusText,
+                response: errorText
+              });
+              
+              let errorMessage = `❌ Payment Verification Failed\n\nOrder Number: ${orderNumber}\nTransaction: ${transactionNumber}\nPayment ID: ${razorpayResponse.razorpay_payment_id}\n\n`;
+              
+              try {
+                const errorData = JSON.parse(errorText);
+                errorMessage += `Error: ${errorData.message || 'Server error'}\n`;
+                if (errorData.debug) {
+                  errorMessage += `Debug: ${errorData.debug}\n`;
+                }
+                if (errorData.details) {
+                  errorMessage += `Details: ${errorData.details}\n`;
+                }
+              } catch (e) {
+                errorMessage += `Server Response: ${errorText}\nStatus: ${verifyResponse.status} ${verifyResponse.statusText}\n`;
+              }
+              
+              errorMessage += '\n💡 Please contact support with the above details if amount was deducted.';
+              alert(errorMessage);
             }
             
             // Cart refresh karo
